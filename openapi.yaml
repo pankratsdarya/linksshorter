@@ -1,0 +1,95 @@
+openapi: 3.0.1
+info:
+  title: Links Shortener
+  version: 1.0.0
+  
+components:
+  schemas:
+    LongLink:
+      type: string
+    
+    ShortLink:
+      type: string
+
+    Stats:
+      type: object
+      properties:
+        redirOnThisLink:
+          type: integer
+          format: int64
+        totalRedir:
+          type: integer
+          format: int64
+    
+paths:
+  /longlink:
+    post:
+      summary: Process a new long link
+      operationId: PostLong
+      requestBody:
+        description: Long link that needs to be shortened
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LongLink"
+      responses:
+        200:
+          description: successful operationId
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShortLink"
+        405:
+          description: Invalid input
+          content: {}
+              
+  /shortlink/{shortlinkID}:
+    get:
+      summary: Get page on given short link 
+      operationId: GetOnShort
+      parameters:
+      - name: shortlinkID
+        in: path
+        description: Short link that needs to be redirected
+        required: true
+        schema:
+          $ref: "#/components/schemas/ShortLink"
+      responses:
+        303:
+          description: Sends `Location` header with the long URL that corresponds to specified short URL
+          headers:
+            Location:
+              description: New location, long URL.
+              schema:
+                type: string
+        404:
+          description: Link not found
+          content: {}
+        405:
+          description: Invalid input
+          content: {}
+      
+  /stats/{shortlinkID}:
+    get:
+      summary: Get some statistics
+      operationId: GetStats
+      parameters:
+      - name: shortlinkID
+        in: path
+        description: Short link that needs to be redirected
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShortLink"
+      responses:
+        200:
+          description: successful operationId
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stats"       
+        405:
+          description: Invalid input
+          content: {}
